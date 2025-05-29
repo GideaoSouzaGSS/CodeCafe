@@ -32,6 +32,9 @@ jobs:
       - name: Executar testes
         run: dotnet test src/CodeCafe.sln --no-build --configuration Release
 
+      - name: Build Docker image
+        run: docker build -t codecafe-api -f src/Dockerfile src
+        
       - name: Publicar artefatos
         run: dotnet publish src/CodeCafe.sln --no-build --configuration Release --output ./publicacao
 
