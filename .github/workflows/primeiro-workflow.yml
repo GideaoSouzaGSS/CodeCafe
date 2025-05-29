@@ -12,8 +12,13 @@ jobs:
       - name: Exibir mensagem
         run: echo "Olá Github, GitHub Actions está funcionando!"
 
+      - name: Instalar .NET 9.0 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
       - name: Restaurar dependências
-        run: dotnet restore ../../src/CodeCafe.sln
+        run: dotnet restore src/CodeCafe.sln
 
       - name: Compilar o projeto
-        run: dotnet build ../../src/CodeCafe.sln --no-restore --configuration Release
+        run: dotnet build src/CodeCafe.sln --no-restore --configuration Release
