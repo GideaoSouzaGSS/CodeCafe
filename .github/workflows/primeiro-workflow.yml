@@ -11,3 +11,9 @@ jobs:
 
       - name: Exibir mensagem
         run: echo "Olá Github, GitHub Actions está funcionando!"
+
+      - name: Restaurar dependências
+        run: dotnet restore src/CodeCafe.sln
+
+      - name: Compilar o projeto
+        run: dotnet build src/CodeCafe.sln --no-restore --configuration Release
