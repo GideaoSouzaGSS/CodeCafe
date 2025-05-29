@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  api:
+    container_name: ApiService
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:80"
+    depends_on:
+      - redis-CodeCafe
+      - azurite
+      - mailhog
+      - rabbitmq
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - UseInMemoryDatabase=true
+      - ConnectionStrings__Redis=redis-CodeCafe:6379,ssl=false,abortConnect=false
+      - ConnectionStrings__AzureBlobStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;
+      - Redis__InstanceName=CodeCafe_
+      - Redis__DefaultDatabase=0
+      - Email__SmtpServer=mailhog
+      - Email__SmtpPort=1025
+      - Email__EnableSsl=false
+    volumes:
+      - ./CodeCafe.Infrastructure/Templates:/app/Templates
+
+  redis-CodeCafe:
+    image: redis
+    container_name: Redis
+    ports:
+      - "6379:6379"
+
+  mailhog:
+    container_name: MailHog
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025"  # SMTP server
+      - "8025:8025"  # Web UI
+      
+  azurite:
+    container_name: Azurite
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - "10000:10000"  # Blob
+      - "10001:10001"  # Queue
+      - "10002:10002"  # Table
+    volumes:
+      - azurite_data:/data
+
+  rabbitmq:
+    container_name: RabbitMQ
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"   # Porta principal do RabbitMQ
+      - "15672:15672" # Porta do management UI
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  email-worker:
+    container_name: EmailWorker
+    build:
+      context: .
+      dockerfile: CodeCafe.EmailWorker/Dockerfile
+    depends_on:
+      - rabbitmq
+      - mailhog
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Email__SmtpServer=mailhog
+      - Email__SmtpPort=1025
+      - Email__EnableSsl=false
+      - Email__Username=
+      - Email__Password=
+      - Email__FromAddress=noreply@codecafe.com
+      - Email__FromName=CodeCafe
+    volumes:
+      - ./CodeCafe.Infrastructure/Templates:/app/Templates
+
+volumes:
+  azurite_data:
+  rabbitmq_data:

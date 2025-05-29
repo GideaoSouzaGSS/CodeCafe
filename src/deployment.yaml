@@ -1,0 +1,316 @@
+# Persistent Volume para o armazenamento de templates
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-templates
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/tmp/pv-templates"
+
+---
+# Persistent Volume Claim para o armazenamento de templates
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: templates-pvc
+  namespace: codecafe
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+# Deployment para o serviço API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: code-cafe-api
+  namespace: codecafe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: code-cafe-api
+  template:
+    metadata:
+      labels:
+        app: code-cafe-api
+    spec:
+      containers:
+        - name: code-cafe-api
+          image: code-cafe-api:latest  # Supondo que você tenha criado a imagem localmente
+          imagePullPolicy: Never # Ou Never
+          ports:
+            - containerPort: 80
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Development"
+            - name: UseInMemoryDatabase
+              value: "true"
+            - name: ConnectionStrings__Redis
+              value: "redis-CodeCafe:6379,ssl=false,abortConnect=false"
+            - name: ConnectionStrings__AzureBlobStorage
+              value: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite-service:10000/devstoreaccount1;"
+            - name: Redis__InstanceName
+              value: "CodeCafe_"
+            - name: Redis__DefaultDatabase
+              value: "0"
+            - name: Email__SmtpServer
+              value: "mailhog"
+            - name: Email__SmtpPort
+              value: "1025"
+            - name: Email__EnableSsl
+              value: "false"
+          volumeMounts:
+            - name: templates-volume
+              mountPath: /app/Templates
+
+      volumes:
+        - name: templates-volume
+          persistentVolumeClaim:
+            claimName: templates-pvc
+
+---
+# Service para o serviço API
+apiVersion: v1
+kind: Service
+metadata:
+  name: code-cafe-api-service
+  namespace: codecafe
+spec:
+  selector:
+    app: code-cafe-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort
+
+---
+# Service para Redis
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-codecafe
+  namespace: codecafe
+spec:
+  selector:
+    app: redis-codecafe
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+      name: redis-port  # Nome da porta
+
+---
+# Deployment para Redis
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-codecafe
+  namespace: codecafe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-codecafe
+  template:
+    metadata:
+      labels:
+        app: redis-codecafe
+    spec:
+      containers:
+        - name: redis
+          image: redis
+          ports:
+            - containerPort: 6379
+
+---
+# Service para Mailhog
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailhog-service
+  namespace: codecafe
+spec:
+  selector:
+    app: mailhog
+  ports:
+    - protocol: TCP
+      port: 1025
+      targetPort: 1025
+      name: smtp-port  # Nome da porta
+    - protocol: TCP
+      port: 8025
+      targetPort: 8025
+      name: web-port  # Nome da porta
+
+---
+# Deployment para Mailhog
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailhog
+  namespace: codecafe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mailhog
+  template:
+    metadata:
+      labels:
+        app: mailhog
+    spec:
+      containers:
+        - name: mailhog
+          image: mailhog/mailhog
+          ports:
+            - containerPort: 1025
+            - containerPort: 8025
+
+---
+# Service para Azurite
+apiVersion: v1
+kind: Service
+metadata:
+  name: azurite-service
+  namespace: codecafe
+spec:
+  selector:
+    app: azurite
+  ports:
+    - protocol: TCP
+      port: 10000
+      targetPort: 10000
+      name: blob-port  # Nome da porta
+    - protocol: TCP
+      port: 10001
+      targetPort: 10001
+      name: queue-port  # Nome da porta
+    - protocol: TCP
+      port: 10002
+      targetPort: 10002
+      name: table-port  # Nome da porta
+
+---
+# Deployment para Azurite
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azurite
+  namespace: codecafe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: azurite
+  template:
+    metadata:
+      labels:
+        app: azurite
+    spec:
+      containers:
+        - name: azurite
+          image: mcr.microsoft.com/azure-storage/azurite
+          ports:
+            - containerPort: 10000
+            - containerPort: 10001
+            - containerPort: 10002
+
+---
+# Service para RabbitMQ
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-service
+  namespace: codecafe
+spec:
+  selector:
+    app: rabbitmq
+  ports:
+    - protocol: TCP
+      port: 5672
+      targetPort: 5672
+      name: rabbitmq-port  # Nome da porta
+    - protocol: TCP
+      port: 15672
+      targetPort: 15672
+      name: rabbitmq-ui-port  # Nome da porta
+
+---
+# Deployment para RabbitMQ
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  namespace: codecafe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:3-management
+          ports:
+            - containerPort: 5672
+            - containerPort: 15672
+
+---
+# Deployment para o EmailWorker
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-worker
+  namespace: codecafe
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: email-worker
+  template:
+    metadata:
+      labels:
+        app: email-worker
+    spec:
+      containers:
+        - name: email-worker
+          image: code-cafe-email-worker:latest  # Certifique-se de buildar essa imagem no Docker do Minikube
+          imagePullPolicy: Never # Ou Never
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Development"
+            - name: Email__SmtpServer
+              value: "mailhog"
+            - name: Email__SmtpPort
+              value: "1025"
+            - name: Email__EnableSsl
+              value: "false"
+            - name: Email__Username
+              value: ""
+            - name: Email__Password
+              value: ""
+            - name: Email__FromAddress
+              value: "noreply@codecafe.com"
+            - name: Email__FromName
+              value: "CodeCafe"
+          volumeMounts:
+            - name: templates-volume
+              mountPath: /app/Templates
+
+      volumes:
+        - name: templates-volume
+          persistentVolumeClaim:
+            claimName: templates-pvc
