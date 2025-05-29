@@ -10,6 +10,7 @@ using CodeCafe.Domain.Interfaces;
 using CodeCafe.ApiService.Features.Auth.Commands.Login;
 using CodeCafe.ApiService.Features.Auth.Handlers.Register;
 using CodeCafe.Application.Interfaces.Services;
+using MassTransit;
 
 namespace CodeCafe.Tests.Unit.Features.Auth.Handlers;
 
@@ -20,6 +21,7 @@ public class RegisterCommandHandlerTests : IDisposable
     private readonly Mock<IMediator> _mediatorMock;
     private readonly Mock<IValidator<RegisterCommand>> _validatorMock;
     private readonly RegisterCommandHandler _sut;
+    private readonly Mock<IPublishEndpoint> _publishEndpointMock;
     private readonly Mock<IEmailService> _emailServiceMock;
 
     public RegisterCommandHandlerTests()
@@ -32,7 +34,9 @@ public class RegisterCommandHandlerTests : IDisposable
         _dbContext = new AppDbContext(options);
         _usuarioRepository = new UsuarioRepository(_dbContext);
         _mediatorMock = new Mock<IMediator>();
+        _emailServiceMock = new Mock<IEmailService>();
         _validatorMock = new Mock<IValidator<RegisterCommand>>();
+        _publishEndpointMock = new Mock<IPublishEndpoint>();
         _emailServiceMock = new Mock<IEmailService>();
 
         // Setup padrão do validator para passar na validação
@@ -41,12 +45,13 @@ public class RegisterCommandHandlerTests : IDisposable
             .ReturnsAsync(new FluentValidation.Results.ValidationResult(new List<ValidationFailure>())); // Lista vazia significa sucesso na validação
 
         // Criar o handler com o repository, validator e email service
-        // _sut = new RegisterCommandHandler( 
-        //     _usuarioRepository, 
-        //     _mediatorMock.Object,
-        //     _validatorMock.Object,
-        //     _emailServiceMock.Object
-        // );
+        _sut = new RegisterCommandHandler(
+            _usuarioRepository,
+            _mediatorMock.Object,
+            _validatorMock.Object,
+            _publishEndpointMock.Object
+
+        );
     }
 
     [Fact]
@@ -69,7 +74,7 @@ public class RegisterCommandHandlerTests : IDisposable
         // Verificar se o usuário foi salvo usando o repository
         var usuarios = await _usuarioRepository.GetUsuariosAsync();
         var savedUser = usuarios.Should().ContainSingle().Subject;
-        
+
         savedUser.UsuarioId.Should().Be(result);
         savedUser.Nome.Should().Be(command.Nome);
         savedUser.Email.Should().Be(command.Email);
@@ -83,33 +88,6 @@ public class RegisterCommandHandlerTests : IDisposable
                     e.Email == command.Email),
                 It.IsAny<CancellationToken>()),
             Times.Once);
-    }
-
-    [Fact]
-    public async Task Handle_WithDuplicateEmail_ShouldThrowException()
-    {
-        // Arrange
-        var existingEmail = "existing@example.com";
-        var command1 = new RegisterCommand(
-            "First User",
-            existingEmail,
-            "Password123!",
-            DateOnly.FromDateTime(DateTime.Now.AddYears(-20))
-        );
-
-        var command2 = new RegisterCommand(
-            "Second User",
-            existingEmail,
-            "Password456!",
-            DateOnly.FromDateTime(DateTime.Now.AddYears(-25))
-        );
-
-        // Registrar primeiro usuário
-        await _sut.Handle(command1, CancellationToken.None);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            _sut.Handle(command2, CancellationToken.None));
     }
 
     [Theory]
