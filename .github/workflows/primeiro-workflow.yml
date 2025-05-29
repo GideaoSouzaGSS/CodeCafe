@@ -7,4 +7,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Exibir mensagem
-        run: echo "Olá, GitHub Actions está funcionando!"
+        run: echo "Olá Github, GitHub Actions está funcionando!"
