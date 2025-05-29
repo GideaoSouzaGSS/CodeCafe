@@ -1,5 +1,4 @@
 using System.Text;
-using Azure.Storage.Blobs;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -27,7 +26,6 @@ using Microsoft.Extensions.Options;
 using CodeCafe.Application.Interfaces.Services;
 using StackExchange.Redis;
 using CodeCafe.ApiService.Features.Auth;
-using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -132,36 +130,6 @@ builder.Services.AddSignalR(options =>
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
 builder.Services.AddScoped<IAlbumsRepository, AlbumsRepository>();
 
-builder.Services.Configure<BlobStorageOptions>(
-    builder.Configuration.GetSection(BlobStorageOptions.ConfigurationSection));
-
-builder.Services.AddSingleton(sp =>
-{
-    var options = sp.GetRequiredService<IOptions<BlobStorageOptions>>().Value;
-    return new BlobServiceClient(options.ConnectionString);
-});
-
-builder.Services.AddScoped<IBlobService, AzureBlobService>();
-
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddSingleton<BlobServiceClient>(_ =>
-        new BlobServiceClient(builder.Configuration.GetConnectionString("AzureBlobStorage")));
-
-    builder.Services.AddScoped<IPublicImageBlobService, PublicImageBlobService>();
-    builder.Services.AddScoped<IProfileImageBlobService, ProfileImageBlobService>();
-    builder.Services.AddScoped<IPrivateImageBlobService, PrivateImageBlobService>();
-}
-else
-{
-    builder.Services.AddSingleton<BlobServiceClient>(_ =>
-        new BlobServiceClient(builder.Configuration.GetConnectionString("AzureBlobStorage")));
-
-    builder.Services.AddScoped<IPublicImageBlobService, PublicImageBlobService>();
-    builder.Services.AddScoped<IProfileImageBlobService, ProfileImageBlobService>();
-    builder.Services.AddScoped<IPrivateImageBlobService, PrivateImageBlobService>();
-}
-
 // Configuração do Redis
 // Substituir a configuração atual do Redis por esta
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
@@ -198,30 +166,12 @@ builder.Services.AddStackExchangeRedisCache(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddMassTransit(busConfig =>
-{
-    busConfig.UsingRabbitMq((context, cfg) =>
-    {
-        // Configuração do RabbitMQ
-        cfg.Host("rabbitmq", "/", h =>
-        {
-            h.Username("guest");
-            h.Password("guest");
-        });
 
-        // Configuração das filas
-        cfg.ConfigureEndpoints(context);
-    });
-});
 
 var app = builder.Build();
 
 // Garantir que os contêineres existam
-using (var scope = app.Services.CreateScope())
-{
-    var blobService = scope.ServiceProvider.GetRequiredService<IBlobService>();
-    await blobService.CreateContainersAsync();
-}
+
 
 app.UseCors("SignalRPolicy");
 

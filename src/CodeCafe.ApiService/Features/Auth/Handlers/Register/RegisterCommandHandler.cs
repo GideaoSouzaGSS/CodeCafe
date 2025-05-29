@@ -58,13 +58,13 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Guid>
         await _usuarioRepository.SalvarAlteracoesAsync();
 
         // Publicar evento em vez de enviar e-mail diretamente
-        await _publishEndpoint.Publish(new UserRegisteredEvent
-        {
-            UserId = usuario.UsuarioId,
-            Email = usuario.Email, 
-            Username = usuario.Email, // Ou outro campo apropriado
-            ConfirmationToken = usuario.CodigoConfirmacaoEmail ?? Guid.NewGuid().ToString()
-        }, cancellationToken);
+        // await _publishEndpoint.Publish(new UserRegisteredEvent
+        // {
+        //     UserId = usuario.UsuarioId,
+        //     Email = usuario.Email, 
+        //     Username = usuario.Email, // Ou outro campo apropriado
+        //     ConfirmationToken = usuario.CodigoConfirmacaoEmail ?? Guid.NewGuid().ToString()
+        // }, cancellationToken);
 
 
         // Enviar email de confirmação
