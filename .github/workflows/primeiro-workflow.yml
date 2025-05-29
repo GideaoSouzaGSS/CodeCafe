@@ -40,3 +40,6 @@ jobs:
         with:
           name: build-dotnet
           path: ./publicacao
+
+      - name: Trigger Render Deploy
+        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
