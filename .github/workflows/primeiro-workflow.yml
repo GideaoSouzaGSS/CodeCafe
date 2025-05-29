@@ -24,7 +24,7 @@ jobs:
         run: dotnet restore src/CodeCafe.sln
 
       - name: Restaurar workloads do .NET
-        run: dotnet workload restore
+        run: dotnet workload restore --project src/CodeCafe.sln
 
       - name: Compilar o projeto
         run: dotnet build src/CodeCafe.sln --no-restore --configuration Release
