@@ -9,13 +9,16 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      - name: Exibir mensagem
-        run: echo "Olá Github, GitHub Actions está funcionando!"
-
       - name: Instalar .NET 9.0 SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
+
+      - name: Instalar workload Aspire
+        run: dotnet workload install aspire
+
+      - name: Exibir mensagem
+        run: echo "Olá Github, GitHub Actions está funcionando!"
 
       - name: Restaurar dependências
         run: dotnet restore src/CodeCafe.sln
