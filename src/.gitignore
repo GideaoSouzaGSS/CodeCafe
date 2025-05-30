@@ -13,6 +13,8 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+coverage-report/
+tools/
 
 # Visual Studio files
 .vs/
@@ -98,3 +100,8 @@ out/
 *.bak
 *.cache
 *~
+
+#Testes
+
+CodeCafe.Tests/TestResults/
+.config/

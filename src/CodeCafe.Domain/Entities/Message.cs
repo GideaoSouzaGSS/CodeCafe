@@ -1,3 +1,5 @@
+using CodeCafe.Domain.Events;
+
 namespace  CodeCafe.Domain.Entities;
 
 public class Message

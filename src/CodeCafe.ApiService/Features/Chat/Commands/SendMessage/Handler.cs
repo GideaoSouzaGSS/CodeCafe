@@ -5,6 +5,7 @@ using CodeCafe.Data;
 using CodeCafe.Data.Store;
 using CodeCafe.Domain.Entities;
 using CodeCafe.Domain.Interfaces;
+using CodeCafe.Domain.Events;
 
 namespace CodeCafe.ApiService.Features.Chat.Commands.SendMessage;
 

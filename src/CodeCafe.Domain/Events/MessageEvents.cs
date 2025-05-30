@@ -1,3 +1,5 @@
+namespace CodeCafe.Domain.Events;
+
 public abstract record MessageEvent(Guid EventId, DateTime Timestamp);
 
 public record MessageSentEvent(

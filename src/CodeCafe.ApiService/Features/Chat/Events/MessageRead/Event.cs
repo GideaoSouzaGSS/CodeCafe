@@ -1,3 +1,5 @@
+using CodeCafe.Domain.Events;
+
 namespace CodeCafe.ApiService.Features.Chat.Events.MessageRead;
 
 public record MessageReadEvent(
