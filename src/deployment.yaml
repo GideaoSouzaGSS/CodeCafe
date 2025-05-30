@@ -44,8 +44,8 @@ spec:
     spec:
       containers:
         - name: code-cafe-api
-          image: code-cafe-api:latest  # Supondo que você tenha criado a imagem localmente
-          imagePullPolicy: Never # Ou Never
+          image: gideaosouza95/code-cafe-api:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
           env:
@@ -287,8 +287,8 @@ spec:
     spec:
       containers:
         - name: email-worker
-          image: code-cafe-email-worker:latest  # Certifique-se de buildar essa imagem no Docker do Minikube
-          imagePullPolicy: Never # Ou Never
+          image: gideaosouza95/code-cafe-email-worker:latest
+          imagePullPolicy: IfNotPresent
           env:
             - name: ASPNETCORE_ENVIRONMENT
               value: "Development"

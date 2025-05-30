@@ -5,7 +5,7 @@ services:
     container_name: ApiService
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: CodeCafe.ApiService/Dockerfile
     ports:
       - "5000:80"
     depends_on:
