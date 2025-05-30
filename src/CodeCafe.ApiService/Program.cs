@@ -166,6 +166,11 @@ builder.Services.AddStackExchangeRedisCache(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddSingleton<MassTransit.IPublishEndpoint, FakePublishEndpoint>();
+builder.Services.AddSingleton<IBlobService, FakeBlobService>();
+builder.Services.AddSingleton<IProfileImageBlobService, FakeBlobService>();
+builder.Services.AddSingleton<IPrivateImageBlobService, FakeBlobService>();
+
 
 
 var app = builder.Build();
