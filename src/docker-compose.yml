@@ -23,6 +23,8 @@ services:
       - Email__SmtpServer=mailhog
       - Email__SmtpPort=1025
       - Email__EnableSsl=false
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
     volumes:
       - ./CodeCafe.Infrastructure/Templates:/app/Templates
 
