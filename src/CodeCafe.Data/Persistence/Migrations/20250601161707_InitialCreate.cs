@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -15,10 +16,10 @@ namespace CodeCafe.Data.Persistence.Migrations
                 name: "Conversations",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    User1Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    User2Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LastMessageAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    User1Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    User2Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    LastMessageAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -29,16 +30,16 @@ namespace CodeCafe.Data.Persistence.Migrations
                 name: "UserProfiles",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    DisplayName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Bio = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UsuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    PhotoUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CoverPhotoUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AccepptFollow = table.Column<bool>(type: "bit", nullable: false),
-                    AcceptDirectMessage = table.Column<bool>(type: "bit", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Username = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    DisplayName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Bio = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UsuarioId = table.Column<Guid>(type: "uuid", nullable: false),
+                    PhotoUrl = table.Column<string>(type: "text", nullable: true),
+                    CoverPhotoUrl = table.Column<string>(type: "text", nullable: true),
+                    AccepptFollow = table.Column<bool>(type: "boolean", nullable: false),
+                    AcceptDirectMessage = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -49,17 +50,17 @@ namespace CodeCafe.Data.Persistence.Migrations
                 name: "Usuarios",
                 columns: table => new
                 {
-                    UsuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Senha = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UsuarioId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Nome = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    Senha = table.Column<string>(type: "text", nullable: false),
                     DataNascimento = table.Column<DateOnly>(type: "date", nullable: false),
-                    EmailConfirmado = table.Column<bool>(type: "bit", nullable: false),
-                    CodigoConfirmacaoEmail = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DataGeracaoCodigoEmail = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    TwoFactorHabilitado = table.Column<bool>(type: "bit", nullable: false),
-                    ChaveAutenticacaoTwoFactor = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TokensRecuperacaoTwoFactor = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    EmailConfirmado = table.Column<bool>(type: "boolean", nullable: false),
+                    CodigoConfirmacaoEmail = table.Column<string>(type: "text", nullable: true),
+                    DataGeracaoCodigoEmail = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    TwoFactorHabilitado = table.Column<bool>(type: "boolean", nullable: false),
+                    ChaveAutenticacaoTwoFactor = table.Column<string>(type: "text", nullable: true),
+                    TokensRecuperacaoTwoFactor = table.Column<List<string>>(type: "text[]", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -70,14 +71,14 @@ namespace CodeCafe.Data.Persistence.Migrations
                 name: "Messages",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ConversationId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SenderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RecipientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
-                    SentAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsRead = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    ReadAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ConversationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SenderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RecipientId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Content = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
+                    SentAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsRead = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    ReadAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -94,9 +95,9 @@ namespace CodeCafe.Data.Persistence.Migrations
                 name: "Albums",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    UserProfileId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    UserProfileId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -113,9 +114,9 @@ namespace CodeCafe.Data.Persistence.Migrations
                 name: "UserFollowings",
                 columns: table => new
                 {
-                    FollowerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FollowedId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FollowedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    FollowerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FollowedId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FollowedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -138,9 +139,9 @@ namespace CodeCafe.Data.Persistence.Migrations
                 name: "UsuarioRole",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RoleName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UsuarioId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    RoleName = table.Column<string>(type: "text", nullable: false),
+                    UsuarioId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -156,9 +157,9 @@ namespace CodeCafe.Data.Persistence.Migrations
                 name: "Photos",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Url = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    AlbumId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Url = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    AlbumId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {

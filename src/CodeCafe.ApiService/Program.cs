@@ -108,10 +108,10 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 // Entity Framework
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseInMemoryDatabase("AppDbContext"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL")));
 
 builder.Services.AddDbContext<EventStoreDbContext>(options =>
-    options.UseInMemoryDatabase("EventStoreDbContext"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQLEventStore")));
 
 // MediatR e Validação
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));

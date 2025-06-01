@@ -52,7 +52,7 @@ services:
       - azurite_data:/data
 
   rabbitmq:
-    container_name: RabbitMQ
+    container_name: rabbitmq 
     image: rabbitmq:3-management
     ports:
       - "5672:5672"   # Porta principal do RabbitMQ
